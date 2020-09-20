@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QtWidgets>
+#include <windowGeneratedCode.h>
 
 class mainWindow : public QWidget
 {
@@ -12,7 +13,7 @@ private:
     QCheckBox* avoidDuplicateHeader;
     QCheckBox* constructorDefault;
     QCheckBox* destructorDefault;
-    QCheckBox* addNote;
+    QGroupBox* descriptionclass;
     QLineEdit* author;
     QDateEdit* date;
     QTextEdit* description;
@@ -21,6 +22,9 @@ private:
 public:
     mainWindow();
     ~mainWindow() {}
+public slots:
+    void generateCodeSlot();
+    QString generateCode();
 };
 
 #endif // MAINWINDOW_H

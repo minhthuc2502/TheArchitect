@@ -1,6 +1,8 @@
 #include <mainwindow.h>
-
+#include <QDebug>
 mainWindow::mainWindow() : QWidget() {
+    // set title for window
+    setWindowTitle("The architect");
     QVBoxLayout *mainWindowLayout = new QVBoxLayout();
     /* box information class */
     QGroupBox *informationClass = new QGroupBox("Information class");
@@ -35,7 +37,7 @@ mainWindow::mainWindow() : QWidget() {
     optionClass->setLayout(optionClassLayout);
 
     /* box description class */
-    QGroupBox *descriptionclass = new QGroupBox("Add description for source code");
+    descriptionclass = new QGroupBox("Add description for source code");
     descriptionclass->setCheckable(true);
     QGridLayout *descriptionClassLayout = new QGridLayout();
 
@@ -69,6 +71,53 @@ mainWindow::mainWindow() : QWidget() {
     mainWindowLayout->addWidget(informationClass);
     mainWindowLayout->addWidget(optionClass);
     mainWindowLayout->addWidget(descriptionclass);
-    mainWindowLayout->addLayout(buttonLayout, 50);
+    mainWindowLayout->addLayout(buttonLayout, 0);
     setLayout(mainWindowLayout);
+
+    // add connection
+    connect(exitButton, SIGNAL(clicked()), this, SLOT(close()));
+    connect(generateButton, SIGNAL(clicked()), this, SLOT(generateCodeSlot()));
+}
+
+void mainWindow::generateCodeSlot() {
+    QString context = generateCode();
+    qDebug() << context;
+    windowGenerateCode* m_windowGenerate = new windowGenerateCode();
+    m_windowGenerate->resize(600, 700);
+    if (context != NULL) {
+        m_windowGenerate->fillCodeInWindow(context);
+    }
+
+}
+
+QString mainWindow::generateCode() {
+    QString context = "";
+    if (classname->text().isEmpty()) {
+        QMessageBox::warning(this, "warning", "You have to fill the name of class");
+        return NULL;
+    }
+    context += "class " + classname->text();
+    if (!classParent->text().isEmpty()) {
+        context += " : public " + classParent->text();
+    }
+    context +=  " {\npublic:\n";
+    if (constructorDefault->isChecked()) {
+        context += "\t" + classname->text() + "();\n";
+    }
+    if (constructorDefault->isChecked()) {
+        context += "\t~" + classname->text() + "();\n";
+    }
+    context += "\nprotect:\n";
+    context += "\nprrivate:\n};\n\n";
+    if (avoidDuplicateHeader->isChecked()) {
+        context = "#ifndef HEADER_" + classname->text().toUpper() + "\n"
+                + "#define HEADER_" + classname->text().toUpper() + "\n\n" + context;
+        context += "#endif   //HEADER_" + classname->text().toUpper();
+    }
+    if (descriptionclass->isChecked()) {
+        context = "/*\n@author: " + author->text()
+                + "\n@date: " + date->text()
+                + "\n@brief: " + description->toPlainText() + "\n*/\n" + context;
+    }
+    return context;
 }

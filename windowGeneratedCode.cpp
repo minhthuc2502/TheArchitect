@@ -5,8 +5,9 @@ windowGenerateCode::windowGenerateCode() : QWidget() {
     setWindowTitle("Generated Source Code");
     QVBoxLayout *codewindowLayout = new QVBoxLayout();
     generatedCode = new QTextEdit();
+    generatedCode->setFont(QFont("Courrier", 10));
     exitButton = new QPushButton("Exit");
-
+    exitButton->setCursor(Qt::PointingHandCursor);
     // add widgets to layout
     codewindowLayout->addWidget(generatedCode);
     codewindowLayout->addWidget(exitButton);
@@ -18,6 +19,6 @@ windowGenerateCode::windowGenerateCode() : QWidget() {
 }
 
 void windowGenerateCode::fillCodeInWindow(QString context) {
-    generatedCode->setText(context);
+    generatedCode->setPlainText(context);
     show();
 }

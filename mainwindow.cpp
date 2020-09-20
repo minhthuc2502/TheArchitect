@@ -1,5 +1,4 @@
 #include <mainwindow.h>
-#include <QDebug>
 mainWindow::mainWindow() : QWidget() {
     // set title for window
     setWindowTitle("The architect");
@@ -26,8 +25,11 @@ mainWindow::mainWindow() : QWidget() {
 
     // widget in box option
     avoidDuplicateHeader = new QCheckBox("Avoid duplicating the Header");
+    avoidDuplicateHeader->setCursor(Qt::PointingHandCursor);
     constructorDefault = new QCheckBox("Create default constructor");
+    constructorDefault->setCursor(Qt::PointingHandCursor);
     destructorDefault = new QCheckBox("Create default destructor");
+    destructorDefault->setCursor(Qt::PointingHandCursor);
 
     // add widget to layout option
     optionClassLayout->addWidget(avoidDuplicateHeader, 0, 0);
@@ -39,6 +41,7 @@ mainWindow::mainWindow() : QWidget() {
     /* box description class */
     descriptionclass = new QGroupBox("Add description for source code");
     descriptionclass->setCheckable(true);
+    descriptionclass->setCursor(Qt::PointingHandCursor);
     QGridLayout *descriptionClassLayout = new QGridLayout();
 
     // Author
@@ -50,6 +53,7 @@ mainWindow::mainWindow() : QWidget() {
     // Description
     QLabel *descLabel = new QLabel("Description:");
     description = new QTextEdit();
+    description->setPlaceholderText("write some description for this class");
 
     descriptionClassLayout->addWidget(authorLabel, 0, 0);
     descriptionClassLayout->addWidget(author, 0, 1);
@@ -62,7 +66,9 @@ mainWindow::mainWindow() : QWidget() {
 
     /* Set buttons of window*/
     generateButton = new QPushButton("Generate");
+    generateButton->setCursor(Qt::PointingHandCursor);
     exitButton = new QPushButton("Exit");
+    exitButton->setCursor(Qt::PointingHandCursor);
     QGridLayout *buttonLayout = new QGridLayout();
     buttonLayout->addWidget(generateButton, 0, 0, 0, 5, Qt::AlignRight);
     buttonLayout->addWidget(exitButton, 0, 6, 0, 1, Qt::AlignRight);
@@ -81,7 +87,6 @@ mainWindow::mainWindow() : QWidget() {
 
 void mainWindow::generateCodeSlot() {
     QString context = generateCode();
-    qDebug() << context;
     windowGenerateCode* m_windowGenerate = new windowGenerateCode();
     m_windowGenerate->resize(600, 700);
     if (context != NULL) {
@@ -104,7 +109,7 @@ QString mainWindow::generateCode() {
     if (constructorDefault->isChecked()) {
         context += "\t" + classname->text() + "();\n";
     }
-    if (constructorDefault->isChecked()) {
+    if (destructorDefault->isChecked()) {
         context += "\t~" + classname->text() + "();\n";
     }
     context += "\nprotect:\n";
@@ -117,7 +122,7 @@ QString mainWindow::generateCode() {
     if (descriptionclass->isChecked()) {
         context = "/*\n@author: " + author->text()
                 + "\n@date: " + date->text()
-                + "\n@brief: " + description->toPlainText() + "\n*/\n" + context;
+                + "\n@brief: " + description->toPlainText() + "\n*/\n\n" + context;
     }
     return context;
 }

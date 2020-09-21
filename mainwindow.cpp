@@ -9,6 +9,15 @@ mainWindow::mainWindow() : QWidget() {
     QGridLayout *infoClassLayout = new QGridLayout();
     QLabel *classNameLabel = new QLabel("Class name:");
     classname = new QLineEdit();
+    /*
+     * Determize regrex for validator (can using inputMask() instead of validator)
+     * ^ start must be alphabet [A-Za-z]
+     * $ end must be alphabet [A-Za-z]
+     * + one or more occurrence [A-Za-z]
+    */
+    QRegExp rx("^[A-Za-z]+$");
+    QValidator *validator = new QRegExpValidator(rx);
+    classname->setValidator(validator);
     infoClassLayout->addWidget(classNameLabel, 0, 0);
     infoClassLayout->addWidget(classname, 0, 1);
 
@@ -83,24 +92,25 @@ mainWindow::mainWindow() : QWidget() {
     // add connection
     connect(exitButton, SIGNAL(clicked()), this, SLOT(close()));
     connect(generateButton, SIGNAL(clicked()), this, SLOT(generateCodeSlot()));
+    connect(classname, SIGNAL(textChanged(QString)), this, SLOT(updateCheckBoxText(QString)));
 }
 
 void mainWindow::generateCodeSlot() {
-    QString context = generateCode();
-    windowGenerateCode* m_windowGenerate = new windowGenerateCode();
-    m_windowGenerate->resize(600, 700);
-    if (context != NULL) {
-        m_windowGenerate->fillCodeInWindow(context);
-    }
-
-}
-
-QString mainWindow::generateCode() {
-    QString context = "";
     if (classname->text().isEmpty()) {
         QMessageBox::warning(this, "warning", "You have to fill the name of class");
-        return NULL;
+        return;
     }
+    QString sourceHPP = generateCodeHPP();
+    QString sourceCPP = generateCodeCPP();
+    windowGenerateCode* m_windowGenerate = new windowGenerateCode();
+    m_windowGenerate->resize(600, 700);
+    if (sourceCPP != NULL && sourceHPP != NULL) {
+        m_windowGenerate->fillCodeInWindow(sourceHPP, sourceCPP);
+    }
+}
+
+QString mainWindow::generateCodeHPP() {
+    QString context = "";
     context += "class " + classname->text();
     if (!classParent->text().isEmpty()) {
         context += " : public " + classParent->text();
@@ -125,4 +135,28 @@ QString mainWindow::generateCode() {
                 + "\n@brief: " + description->toPlainText() + "\n*/\n\n" + context;
     }
     return context;
+}
+
+QString mainWindow::generateCodeCPP() {
+    QString context = "#include <" + classname->text() + ".h>\n";
+    if (constructorDefault->isChecked()) {
+        context += "\n" + classname->text() + "::" + classname->text() + "()";
+        context += (!classParent->text().isEmpty()) ? (" : " + classParent->text() + "()") : ("");
+        context += " {\n}\n";
+    }
+    if (destructorDefault->isChecked()) {
+        context += "\n" + classname->text() + "::~" + classname->text() + "()";
+        context += (!classParent->text().isEmpty()) ? (" : ~" + classParent->text() + "()") : ("");
+        context += " {\n}\n";
+    }
+    if (descriptionclass->isChecked()) {
+        context = "/*\n@author: " + author->text()
+                + "\n@date: " + date->text()
+                + "\n@brief: " + description->toPlainText() + "\n*/\n\n" + context;
+    }
+    return context;
+}
+void mainWindow::updateCheckBoxText(QString text) {
+    avoidDuplicateHeader->setText("Avoid duplicating the Header \"HEADER_" + text.toUpper() + "\"");
+    return;
 }

@@ -22,9 +22,11 @@ private:
 public:
     mainWindow();
     ~mainWindow() {}
+    QString generateCodeHPP();
+    QString generateCodeCPP();
 public slots:
     void generateCodeSlot();
-    QString generateCode();
+    void updateCheckBoxText(QString);
 };
 
 #endif // MAINWINDOW_H
